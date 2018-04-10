@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication2.Controllers.Functionality;
 
 namespace WebApplication2.Controllers
 {
@@ -10,21 +11,44 @@ namespace WebApplication2.Controllers
     {
         public ActionResult Index()
         {
+            ViewData["UrlsCount"] = Scrapper.countDBDocs();
             return View();
         }
 
-        public ActionResult About()
+        [HttpPost]
+        public ActionResult GetUrl(FormCollection collection)
         {
-            ViewBag.Message = "Your application description page.";
+            try
+            {          
+                Scrapper scrape = new Scrapper();
+                string url = collection["Name"];
+                string[] results= { };
+                scrape.ScrapeWebPage(url, out results);
+                ViewData["Message"] = "Success";
+                ViewData["Divs"] = results[1];
+                ViewData["Spans"] = results[2];
+                ViewData["Links"] = results[3]; 
+                ViewData["Last URL"] = results[0];
 
-            return View();
+                ViewData["UrlsCount"] = Scrapper.countDBDocs();
+
+
+                return View("~/Views/Home/index.cshtml");
+
+
+
+            }
+
+            catch
+            {
+                ViewData["Message"] = "Failed";
+
+                return View("~/Views/Home/index.cshtml");
+            }
         }
 
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
 
-            return View();
-        }
+
+
     }
 }
